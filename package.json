@@ -1,0 +1,16 @@
+{
+    "name": "sistema-colegio",
+    "version": "1.0.0",
+    "description": "Backend sistema colegio",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.6",
+        "express": "^5.2.1",
+        "mysql2": "^3.17.2"
+    }
+}
