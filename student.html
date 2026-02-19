@@ -25,27 +25,79 @@
     </div>
 
     <script>
-        document.getElementById('info-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = {
-        student_id: localStorage.getItem("user_id"),
-        ti_est: document.getElementById('ti_est').value,
-        birth_date_est: document.getElementById('birth_date_est').value,
-        phone_est: document.getElementById('phone_est').value,
-        eps_est: document.getElementById('eps_est').value,
-        mom_name: document.getElementById('mom_name').value,
-        phone_mon: document.getElementById('phone_mon').value,
-        cc_mom: document.getElementById('cc_mom').value
-        };
 
-        const res = await fetch('/info/add', {  // Ruta de AdditionalInfoController
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        // ===============================
+        // CARGAR INFORMACIÓN AL ENTRAR
+        // ===============================
+        window.addEventListener('DOMContentLoaded', async () => {
+        
+            const student_id = localStorage.getItem("user_id");
+        
+            if (!student_id) {
+                document.getElementById('status').textContent = "❌ No hay sesión activa";
+                return;
+            }
+        
+            try {
+                const res = await fetch(`/info/get?student_id=${student_id}`);
+                const data = await res.json();
+        
+                if (data && data.success && data.info) {
+        
+                    document.getElementById('ti_est').value = data.info.ti_est || '';
+                    document.getElementById('birth_date_est').value = data.info.birth_date_est || '';
+                    document.getElementById('phone_est').value = data.info.phone_est || '';
+                    document.getElementById('eps_est').value = data.info.eps_est || '';
+                    document.getElementById('mom_name').value = data.info.mom_name || '';
+                    document.getElementById('phone_mon').value = data.info.phone_mon || '';
+                    document.getElementById('cc_mom').value = data.info.cc_mom || '';
+                }
+        
+            } catch (err) {
+                console.log("Error cargando datos");
+            }
         });
-        const data = await res.json();
-        document.getElementById('status').textContent = data.success ? '✅ Guardado!' : '❌ Error: ' + data.message;
+        
+        
+        // ===============================
+        // GUARDAR O ACTUALIZAR
+        // ===============================
+        document.getElementById('info-form').addEventListener('submit', async (e) => {
+        
+            e.preventDefault();
+        
+            const student_id = localStorage.getItem("user_id");
+        
+            const formData = {
+                student_id: student_id,
+                ti_est: document.getElementById('ti_est').value,
+                birth_date_est: document.getElementById('birth_date_est').value,
+                phone_est: document.getElementById('phone_est').value,
+                eps_est: document.getElementById('eps_est').value,
+                mom_name: document.getElementById('mom_name').value,
+                phone_mon: document.getElementById('phone_mon').value,
+                cc_mom: document.getElementById('cc_mom').value
+            };
+        
+            try {
+        
+                const res = await fetch('/info/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+        
+                const data = await res.json();
+        
+                document.getElementById('status').textContent =
+                    data.success ? '✅ Información guardada correctamente'
+                                 : '❌ Error: ' + data.message;
+        
+            } catch (err) {
+                document.getElementById('status').textContent = '❌ Error de conexión';
+            }
+        
         });
-    </script>
-</body>
-</html>
+        
+        </script>
+        
