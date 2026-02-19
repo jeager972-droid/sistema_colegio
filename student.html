@@ -28,7 +28,7 @@
         document.getElementById('info-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = {
-        student_id: 1,  // ← Cambia por user_id real (de sesión más adelante)
+        student_id: localStorage.getItem("user_id"),
         ti_est: document.getElementById('ti_est').value,
         birth_date_est: document.getElementById('birth_date_est').value,
         phone_est: document.getElementById('phone_est').value,
