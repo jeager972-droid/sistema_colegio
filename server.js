@@ -10,6 +10,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'login.html'));
+});
+
 const db = mysql.createConnection({
   host: '127.0.0.1',
   user: 'root',
@@ -26,19 +30,18 @@ db.connect(err => {
 
 // ================= LOGIN =================
 app.post('/login', (req, res) => {
+
   const { document_number, password } = req.body;
 
   db.query(
-    `SELECT users.*, roles.name as role_name
+    `SELECT users.*, roles.name AS role_name
      FROM users
      JOIN roles ON users.role_id = roles.id
      WHERE document_number=? AND password_hash=? AND is_active=TRUE`,
     [document_number, password],
     (err, result) => {
 
-      if (err) return res.json({ success:false });
-
-      if (result.length === 0)
+      if (err || result.length === 0)
         return res.json({ success:false });
 
       const user = result[0];
@@ -100,7 +103,7 @@ app.get('/info/get', (req, res) => {
 });
 
 
-// ================= GUARDAR O ACTUALIZAR =================
+// ================= GUARDAR =================
 app.post('/info/save', (req, res) => {
 
   const {
@@ -144,13 +147,12 @@ app.post('/info/save', (req, res) => {
           () => res.json({ success:true })
         );
       }
-
     }
   );
 });
 
 
-// ================= EXPORTAR EXCEL =================
+// ================= EXPORTAR =================
 app.get('/export/excel', async (req, res) => {
 
   db.query(
@@ -198,7 +200,6 @@ app.get('/export/excel', async (req, res) => {
     }
   );
 });
-
 
 app.listen(3000, () =>
   console.log("Servidor en http://localhost:3000")

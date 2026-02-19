@@ -92,7 +92,7 @@
                     <td>${student.full_name}</td>
                     <td>
                         <button class="btn btn-sm btn-info"
-                            onclick='openForm(${JSON.stringify(student)})'>
+                            onclick="openForm(${student.id})">
                             Ver información
                         </button>
                     </td>
@@ -101,21 +101,29 @@
         });
     }
     
-    function openForm(student){
     
-        document.getElementById("student-form-container").style.display="block";
+    async function openForm(student_id){
     
-        document.getElementById("student_id").value = student.id;
-        document.getElementById("ti_est").value = student.ti_est || '';
-        document.getElementById("birth_date_est").value = student.birth_date_est || '';
-        document.getElementById("phone_est").value = student.phone_est || '';
-        document.getElementById("eps_est").value = student.eps_est || '';
-        document.getElementById("mom_name").value = student.mom_name || '';
-        document.getElementById("phone_mon").value = student.phone_mon || '';
-        document.getElementById("cc_mom").value = student.cc_mom || '';
+        const res = await fetch('/info/get?student_id=' + student_id);
+        const result = await res.json();
+    
+        document.getElementById("student-form-container").style.display = "block";
+        document.getElementById("student_id").value = student_id;
+    
+        const info = result.info || {};
+    
+        document.getElementById("ti_est").value = info.ti_est || '';
+        document.getElementById("birth_date_est").value = info.birth_date_est || '';
+        document.getElementById("phone_est").value = info.phone_est || '';
+        document.getElementById("eps_est").value = info.eps_est || '';
+        document.getElementById("mom_name").value = info.mom_name || '';
+        document.getElementById("phone_mon").value = info.phone_mon || '';
+        document.getElementById("cc_mom").value = info.cc_mom || '';
     }
     
+    
     document.getElementById("edit-form").addEventListener("submit", async function(e){
+    
         e.preventDefault();
     
         const formData = {
@@ -138,7 +146,7 @@
         const data = await res.json();
     
         document.getElementById("status").innerText =
-            data.success ? "✅ Guardado correctamente" : "❌ Error";
+            data.success ? "✅ Guardado correctamente" : "❌ Error guardando";
     });
     
     function exportExcel(){
