@@ -76,13 +76,20 @@ async function loadStudents() {
     const tbody = document.getElementById('students-table');
     tbody.innerHTML = '';
 
+    async function loadStudents() {
+    const res = await fetch('/students/list?classroom_id=1');
+    const data = await res.json();
+
+    const tbody = document.querySelector('#students-table tbody');
+    tbody.innerHTML = '';
+
     data.forEach(student => {
         tbody.innerHTML += `
             <tr>
                 <td>${student.name}</td>
                 <td>
                     <button class="btn btn-sm btn-info"
-                        onclick="loadStudentInfo(${student.id})">
+                        onclick="viewStudent(${student.id})">
                         Ver información
                     </button>
                 </td>

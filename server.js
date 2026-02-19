@@ -142,3 +142,66 @@ app.get('/', (req, res) => {
 app.listen(3000, () => {
   console.log("Servidor en http://localhost:3000");
 });
+
+// OBTENER INFO ESTUDIANTE
+app.get('/info/get', (req, res) => {
+  const student_id = req.query.student_id;
+
+  db.query(
+    "SELECT * FROM additional_inf_est WHERE student_id=?",
+    [student_id],
+    (err, result) => {
+      if (err) return res.json(null);
+      if (result.length === 0) return res.json(null);
+      res.json(result[0]);
+    }
+  );
+});
+
+
+// GUARDAR O ACTUALIZAR
+app.post('/info/save', (req, res) => {
+
+  const {
+    student_id,
+    ti_est,
+    birth_date_est,
+    phone_est,
+    eps_est,
+    mom_name,
+    phone_mon,
+    cc_mom
+  } = req.body;
+
+  db.query(
+    "SELECT id FROM additional_inf_est WHERE student_id=?",
+    [student_id],
+    (err, result) => {
+
+      if (result.length > 0) {
+        // UPDATE
+        db.query(
+          `UPDATE additional_inf_est SET
+            ti_est=?, birth_date_est=?, phone_est=?, eps_est=?,
+            mom_name=?, phone_mon=?, cc_mom=?
+            WHERE student_id=?`,
+          [ti_est, birth_date_est, phone_est, eps_est,
+           mom_name, phone_mon, cc_mom, student_id],
+          () => res.json({ success:true })
+        );
+      } else {
+        // INSERT
+        db.query(
+          `INSERT INTO additional_inf_est
+          (student_id, ti_est, birth_date_est, phone_est,
+           eps_est, mom_name, phone_mon, cc_mom)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [student_id, ti_est, birth_date_est, phone_est,
+           eps_est, mom_name, phone_mon, cc_mom],
+          () => res.json({ success:true })
+        );
+      }
+
+    }
+  );
+});
