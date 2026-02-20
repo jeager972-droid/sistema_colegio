@@ -104,8 +104,8 @@ app.get('/info/get', (req, res) => {
 
 
 // ================= GUARDAR =================
+// ================= GUARDAR =================
 app.post('/info/save', (req, res) => {
-
   const {
     student_id,
     ti_est,
@@ -117,13 +117,21 @@ app.post('/info/save', (req, res) => {
     cc_mom
   } = req.body;
 
+  if (!student_id) {
+    return res.json({ success: false, message: 'student_id requerido' });
+  }
+
   db.query(
-    "SELECT id FROM additional_inf_est WHERE student_id=?",
+    "SELECT student_id FROM additional_inf_est WHERE student_id=?",
     [student_id],
     (err, result) => {
+      if (err) {
+        console.error('Error en check existencia:', err);
+        return res.json({ success: false });
+      }
 
       if (result.length > 0) {
-
+        // UPDATE
         db.query(
           `UPDATE additional_inf_est SET
             ti_est=?, birth_date_est=?, phone_est=?, eps_est=?,
@@ -131,11 +139,16 @@ app.post('/info/save', (req, res) => {
            WHERE student_id=?`,
           [ti_est, birth_date_est, phone_est, eps_est,
            mom_name, phone_mon, cc_mom, student_id],
-          () => res.json({ success:true })
+          (updateErr) => {
+            if (updateErr) {
+              console.error('Error en UPDATE:', updateErr);
+              return res.json({ success: false });
+            }
+            res.json({ success: true });
+          }
         );
-
       } else {
-
+        // INSERT
         db.query(
           `INSERT INTO additional_inf_est
           (student_id, ti_est, birth_date_est, phone_est,
@@ -144,7 +157,13 @@ app.post('/info/save', (req, res) => {
           [student_id, ti_est, birth_date_est,
            phone_est, eps_est,
            mom_name, phone_mon, cc_mom],
-          () => res.json({ success:true })
+          (insertErr) => {
+            if (insertErr) {
+              console.error('Error en INSERT:', insertErr);
+              return res.json({ success: false });
+            }
+            res.json({ success: true });
+          }
         );
       }
     }

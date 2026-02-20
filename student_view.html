@@ -43,21 +43,26 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-const student_id = params.get("student_id");
+const student_id = localStorage.getItem('user_id');
+
+if (!student_id) {
+    document.getElementById('status').innerText = '❌ Error: No se encontró ID de estudiante. Intenta loguearte de nuevo.';
+    // Opcional: redirigir a login
+}
 
 // 🔹 Cargar datos si existen
 async function loadStudent() {
     const res = await fetch(`/info/get?student_id=${student_id}`);
     const data = await res.json();
 
-    if (data) {
-        document.getElementById('ti_est').value = data.ti_est || '';
-        document.getElementById('birth_date_est').value = data.birth_date_est || '';
-        document.getElementById('phone_est').value = data.phone_est || '';
-        document.getElementById('eps_est').value = data.eps_est || '';
-        document.getElementById('mom_name').value = data.mom_name || '';
-        document.getElementById('phone_mon').value = data.phone_mon || '';
-        document.getElementById('cc_mom').value = data.cc_mom || '';
+    if (data.success && data.info) {
+        document.getElementById('ti_est').value = data.info.ti_est || '';
+        document.getElementById('birth_date_est').value = data.info.birth_date_est || '';
+        document.getElementById('phone_est').value = data.info.phone_est || '';
+        document.getElementById('eps_est').value = data.info.eps_est || '';
+        document.getElementById('mom_name').value = data.info.mom_name || '';
+        document.getElementById('phone_mon').value = data.info.phone_mon || '';
+        document.getElementById('cc_mom').value = data.info.cc_mom || '';
     }
 }
 
@@ -86,7 +91,7 @@ document.getElementById('info-form').addEventListener('submit', async (e) => {
 
     const result = await res.json();
     document.getElementById('status').innerText =
-        result.success ? "✅ Guardado correctamente" : "❌ Error";
+        result.success ? "✅ Guardado correctamente" : "❌ Error: " + (result.message || 'Intenta de nuevo');
 });
 </script>
 
